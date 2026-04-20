@@ -1,0 +1,120 @@
+﻿@model QuestBooking.Domain.Model.Questroom
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<style>
+    .details-card {
+        border-radius: 24px;
+        border: none;
+        background: #ffffff;
+    }
+
+    .stat-block {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-icon {
+        background: rgba(67, 97, 238, 0.1);
+        color: #4361ee;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #4361ee, #4cc9f0);
+        border: none;
+        color: white;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+            color: white;
+        }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card details-card shadow-lg overflow-hidden">
+
+                <div class="card-header bg-white border-0 pt-5 pb-4 px-sm-5 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <h1 class="display-5 fw-bolder text-dark mb-0" style="letter-spacing: -1px;">@Model.Title</h1>
+                    <div class="bg-success text-white px-4 py-2 rounded-pill fw-bold fs-4 shadow-sm text-nowrap">
+                        @Model.BasePrice.ToString("N0") грн
+                    </div>
+                </div>
+
+                <div class="px-sm-5 px-4 pb-4 border-bottom border-light">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="stat-block">
+                                <div class="stat-icon">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Тривалість</div>
+                                    <div class="fw-bold fs-5 text-dark">@Model.DurationMinutes хвилин</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="stat-block">
+                                <div class="stat-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Команда</div>
+                                    <div class="fw-bold fs-5 text-dark">До @Model.MaxPlayers гравців</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body px-sm-5 px-4 py-5">
+                    <h4 class="fw-bold mb-4 text-dark d-flex align-items-center">
+                        <i class="bi bi-book-half me-2 text-primary"></i> Легенда квесту
+                    </h4>
+                    <p class="fs-5 text-secondary" style="line-height: 1.7;">
+                        @(string.IsNullOrWhiteSpace(Model.Description) ? "Детальний опис цього квесту ще готується, але ми обіцяємо, що пригода буде незабутньою!" : Model.Description)
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white border-top px-sm-5 px-4 py-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <a asp-action="Index" class="btn btn-link text-muted text-decoration-none fw-medium p-0">
+                        <i class="bi bi-arrow-left me-1"></i> Назад до списку
+                    </a>
+
+                    <a asp-controller="Bookings" asp-action="Create" asp-route-questroomId="@Model.Id" class="btn btn-gradient btn-lg rounded-pill px-5 fw-bold fs-5">
+                        🔥 Забронювати гру
+                    </a>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-4 mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="text-secondary text-decoration-none small transition-colors">
+                    <i class="bi bi-pencil-square me-1"></i> Редагувати
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="text-danger text-decoration-none small opacity-75 hover-opacity-100">
+                    <i class="bi bi-trash3 me-1"></i> Видалити
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

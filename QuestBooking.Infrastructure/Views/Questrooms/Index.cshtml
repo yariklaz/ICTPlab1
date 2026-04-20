@@ -1,0 +1,203 @@
+﻿@model IEnumerable<QuestBooking.Domain.Model.Questroom>
+
+@{
+    ViewData["Title"] = "Квест-кімнати";
+}
+
+<style>
+    /* === ТЕМНЕ СКЛО ДЛЯ КАРТОК КВЕСТІВ === */
+    .quest-card {
+        background: rgba(20, 20, 30, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+        /* Ефект при наведенні (світіння та підйом) */
+        .quest-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 243, 255, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 243, 255, 0.15);
+        }
+
+    .quest-title {
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 1.5rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .quest-price {
+        color: #00ff88;
+        font-weight: 800;
+        font-size: 1.25rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .quest-desc {
+        color: #a0a0a0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        /* Обрізаємо задовгий текст трьома крапками (максимум 3 рядки) */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+
+    /* Блок з іконками часу та гравців */
+    .quest-stats {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 12px 0;
+        margin: 15px 0;
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    .stat-icon {
+        color: var(--neon-accent, #00f3ff);
+        margin-right: 5px;
+    }
+
+    /* Головна кнопка бронювання */
+    .btn-booking {
+        background: var(--neon-accent, #00f3ff);
+        color: #000;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.2s;
+        border: none;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+        .btn-booking:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-accent, #00f3ff);
+        }
+
+    /* Лінк "Створити квест" */
+    .btn-create {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid #00ff88;
+        color: #00ff88;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+        .btn-create:hover {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+    /* Адмінські посилання */
+    .admin-link {
+        font-size: 0.8rem;
+        text-decoration: none;
+        color: #666;
+        transition: color 0.2s;
+    }
+
+        .admin-link:hover {
+            color: #fff;
+        }
+
+        .admin-link.delete:hover {
+            color: #ff4757;
+            text-shadow: 0 0 8px rgba(255, 71, 87, 0.5);
+        }
+</style>
+
+
+<div class="container mb-5">
+
+    <div class="d-flex flex-wrap justify-content-end gap-2 mb-4">
+        <a asp-action="Import" class="btn btn-outline-light px-4 py-2 shadow-sm" style="border-color: var(--neon-accent); color: var(--neon-accent);">
+            <i class="bi bi-upload me-1"></i> Імпорт
+        </a>
+        <a asp-action="Export" class="btn btn-outline-light px-4 py-2 shadow-sm" style="border-color: #bc13fe; color: #bc13fe;">
+            <i class="bi bi-download me-1"></i> Експорт
+        </a>
+        <a asp-action="Create" class="btn btn-create px-4 py-2 shadow-sm ms-md-3">
+            <i class="bi bi-plus-lg me-1"></i> Створити квест
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="quest-card p-4">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h3 class="quest-title mb-0">@item.Title</h3>
+                        <div class="quest-price">@item.BasePrice.ToString("N0") грн</div>
+                    </div>
+
+                    <div class="quest-desc">
+                        @(string.IsNullOrWhiteSpace(item.Description) ? "Опис для цього квесту ще не додано. Але пригода точно буде неймовірною!" : item.Description)
+                    </div>
+
+                    <div class="quest-stats d-flex justify-content-between">
+                        <div>
+                            <i class="bi bi-clock stat-icon"></i> @item.DurationMinutes хв
+                        </div>
+                        <div>
+                            <i class="bi bi-people stat-icon"></i> До @item.MaxPlayers осіб
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-booking d-block text-center text-decoration-none">
+                            Детальніше / Забронювати
+                        </a>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-4 mt-3 pt-2">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="admin-link">
+                            Редагувати
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="admin-link delete">
+                            Видалити
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="container mt-3">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Увага!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Чудово!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>

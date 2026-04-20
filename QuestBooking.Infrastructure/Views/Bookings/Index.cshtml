@@ -1,0 +1,252 @@
+﻿@model IEnumerable<QuestBooking.Domain.Model.Booking>
+
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+
+<style>
+    /* Стиль темного скла для контейнера */
+    .admin-container {
+        background: rgba(20, 20, 30, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    /* Адаптація таблиці під темну тему */
+    .table {
+        color: #e0e0e0; /* Світло-сірий текст */
+    }
+
+        .table thead th {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--neon-accent, #00f3ff); /* Неоновий заголовок стовпців */
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background-color 0.2s;
+        }
+
+            .table tbody tr:hover {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* Стиль для інпутів фільтра (щоб пасували до дизайну) */
+    .filter-input {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+    }
+
+        .filter-input::placeholder {
+            color: #888 !important;
+        }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0 text-white" style="text-shadow: 0 0 10px rgba(255,255,255,0.2);">Керування замовленнями</h2>
+        <span class="badge rounded-pill px-3 py-2" style="background-color: var(--neon-accent, #00f3ff); color: #000; font-weight: 800;">
+            Всього: @Model.Count()
+        </span>
+    </div>
+
+    <div class="admin-container p-3 mb-4">
+        <div class="row align-items-end">
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="text-info fw-bold mb-1" style="font-size: 0.85rem;">Початок періоду</label>
+                <input type="text" id="startDate" class="form-control filter-input date-filter" placeholder="Оберіть дату..." />
+            </div>
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="text-info fw-bold mb-1" style="font-size: 0.85rem;">Кінець періоду</label>
+                <input type="text" id="endDate" class="form-control filter-input date-filter" placeholder="Оберіть дату..." />
+            </div>
+            <div class="col-md-3 mb-2 mb-md-0">
+                <button onclick="drawCharts()" class="btn w-100 fw-bold" style="background-color: var(--neon-accent, #00f3ff); color: #000;">
+                    Застосувати
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button onclick="resetFilters()" class="btn btn-outline-light w-100">
+                    Скинути
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="admin-container p-3 d-flex justify-content-center align-items-center" style="height: 350px;">
+                <div id="chart1" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-container p-3 d-flex justify-content-center align-items-center" style="height: 350px;">
+                <div id="chart2" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="table-responsive">
+            <table class="table align-middle border-light">
+                <thead>
+                    <tr>
+                        <th style="width: 20%">Клієнт</th>
+                        <th style="width: 20%">Квест-кімната</th>
+                        <th style="width: 20%">Дата та час</th>
+                        <th style="width: 15%">Сума</th>
+                        <th style="width: 10%">Статус</th>
+                        <th style="width: 15%" class="text-end">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-white">@item.Client?.FullName</div>
+                                <div class="text-muted small" style="color: #a0a0a0 !important;">@item.Client?.Phone</div>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-light">@item.Slot?.Room?.Title</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold" style="color: var(--neon-accent, #00f3ff);">
+                                    <i class="bi bi-calendar-event me-1"></i> @item.Slot?.StartTime.ToString("dd.MM.yyyy")
+                                </div>
+                                <div class="small ms-4" style="color: #a0a0a0;">
+                                    о @item.Slot?.StartTime.ToString("HH:mm")
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold" style="color: #00ff88;">@item.TotalPrice.ToString("N0") грн</span>
+                            </td>
+                            <td>
+                                <span class="status-badge bg-warning text-dark shadow-sm px-3 rounded-pill">Новий</span>
+                            </td>
+                            <td class="text-end">
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Скасувати це замовлення?');">
+                                    <button type="submit" class="btn btn-sm rounded-pill px-3" style="border: 1px solid #ff4757; color: #ff4757; background: transparent;">
+                                        Скасувати
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/uk.js"></script>
+
+    <script type="text/javascript">
+        // Ініціалізуємо календарики для фільтрів
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr(".date-filter", {
+                locale: "uk",
+                dateFormat: "Y-m-d",
+                disableMobile: "true"
+            });
+        });
+
+        // Завантажуємо Google Charts українською
+        google.charts.load('current', { 'packages': ['corechart'], 'language': 'uk' });
+        google.charts.setOnLoadCallback(drawCharts);
+
+        // Функція скидання фільтрів
+        function resetFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            drawCharts(); // Перемальовуємо за весь час
+        }
+
+        // Головна функція малювання ОБОХ графіків
+        function drawCharts() {
+            // Читаємо дати з інпутів
+            var start = document.getElementById('startDate').value;
+            var end = document.getElementById('endDate').value;
+
+            // Робимо єдиний запит до нашого нового методу в контролері
+            // Додали /api/ на початок!
+            var url = `/api/Charts/GetChartData?startDate=${start}&endDate=${end}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+
+                    // --- Графік 1: Кількість замовлень ---
+                    const dt1 = new google.visualization.DataTable();
+                    dt1.addColumn('string', 'Кімната');
+                    dt1.addColumn('number', 'Кількість замовлень');
+
+                    // Беремо масив popularity з нашого JSON
+                    data.popularity.forEach(item => {
+                        dt1.addRow([item.room, item.count]);
+                    });
+
+                    const options1 = {
+                        title: 'Популярність кімнат (кількість бронювань)',
+                        backgroundColor: 'transparent',
+                        titleTextStyle: { color: '#ffffff', fontSize: 16, bold: true },
+                        hAxis: { textStyle: { color: '#a0a0a0' } },
+                        vAxis: {
+                            textStyle: { color: '#a0a0a0' },
+                            gridlines: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        legend: { position: 'none' },
+                        colors: ['#00f3ff'],
+                        animation: { startup: true, duration: 1000, easing: 'out' }
+                    };
+
+                    const chart1 = new google.visualization.ColumnChart(document.getElementById('chart1'));
+                    chart1.draw(dt1, options1);
+
+
+                    // --- Графік 2: Прибуток ---
+                    const dt2 = new google.visualization.DataTable();
+                    dt2.addColumn('string', 'Кімната');
+                    dt2.addColumn('number', 'Прибуток (грн)');
+
+                    // Беремо масив profit з нашого JSON
+                    data.profit.forEach(item => {
+                        dt2.addRow([item.room, item.profit]);
+                    });
+
+                    const options2 = {
+                        title: 'Розподіл прибутку за кімнатами',
+                        backgroundColor: 'transparent',
+                        titleTextStyle: { color: '#ffffff', fontSize: 16, bold: true },
+                        legend: { position: 'right', textStyle: { color: '#a0a0a0' } },
+                        pieHole: 0.4,
+                        pieSliceBorderColor: 'transparent',
+                        colors: ['#00f3ff', '#bc13fe', '#00ff88', '#ff4757'],
+                        animation: { startup: true, duration: 1000, easing: 'out' }
+                    };
+
+                    const chart2 = new google.visualization.PieChart(document.getElementById('chart2'));
+                    chart2.draw(dt2, options2);
+                })
+                .catch(error => console.error('Помилка завантаження діаграм:', error));
+        }
+    </script>
+}

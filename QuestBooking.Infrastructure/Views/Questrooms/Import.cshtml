@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Імпорт квестів";
+}
+<div class="container mt-5 mb-5 d-flex justify-content-center">
+    <div class="admin-container p-5 text-center" style="max-width: 600px; width: 100%;">
+        <h2 class="text-white mb-4" style="text-shadow: 0 0 10px var(--neon-accent);">Імпорт бази квестів</h2>
+        <p class="text-muted mb-4">Оберіть Excel-файл (.xlsx) для завантаження або оновлення списку кімнат.</p>
+
+        <form asp-action="Import" method="post" enctype="multipart/form-data">
+            <div class="form-group mb-4">
+                <input type="file" id="fileExcel" name="fileExcel" accept=".xlsx" class="d-none" onchange="updateFileName(this)" />
+
+                <label for="fileExcel" class="d-flex w-100" style="cursor: pointer;">
+                    <span class="btn px-4 fw-bold" style="background-color: #f8f9fa; color: #212529; border-radius: 4px 0 0 4px; border: 1px solid #ced4da;">
+                        Оберіть файл
+                    </span>
+                    <span id="fileNameDisplay" class="form-control text-muted d-flex align-items-center" style="background-color: #21252b; color: #adb5bd !important; border: 1px solid #444; border-left: none; border-radius: 0 4px 4px 0;">
+                        Файл не обрано
+                    </span>
+                </label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="Index" class="text-muted text-decoration-none">Скасувати</a>
+                <button type="submit" class="btn fw-bold px-4" style="background-color: #00f3ff; color: #000;">Завантажити</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateFileName(input) {
+            var display = document.getElementById('fileNameDisplay');
+
+            // Якщо користувач обрав файл
+            if (input.files && input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                display.classList.remove('text-muted');
+                display.style.color = '#ffffff'; // Робимо текст білим, коли файл обрано
+            } else {
+                // Якщо скасував вибір
+                display.textContent = 'Файл не обрано';
+                display.classList.add('text-muted');
+                display.style.color = '#adb5bd';
+            }
+        }
+    </script>
+}

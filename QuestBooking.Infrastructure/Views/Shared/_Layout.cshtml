@@ -1,0 +1,249 @@
+﻿@{
+    // Розумна перевірка: дізнаємося, на якій ми сторінці
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // Змінна буде true ТІЛЬКИ якщо ми на головній сторінці квестів
+    bool isHomePage = currentController == "Questrooms" && currentAction == "Index";
+}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? "Головна") - QuestBooking</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+
+    <style>
+        :root {
+            --neon-accent: #00f3ff;
+            --neon-secondary: #bc13fe;
+            --dark-bg: #0a0a0f;
+            --glass-bg: rgba(20, 20, 30, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --header-image: url('/images/image_quest.jpg');
+            --header-blur: 6px;
+            --header-brightness: 0.4;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #0a0a0f, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @@keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Загальна скляна шапка для ВСІХ сторінок */
+        .header-glass {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Додаткові стилі ТІЛЬКИ для головної сторінки (Hero) */
+        .header-hero {
+            overflow: hidden;
+        }
+
+            .header-hero::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: var(--header-image);
+                background-size: cover;
+                background-position: center;
+                filter: blur(var(--header-blur)) brightness(var(--header-brightness));
+                z-index: -1;
+                transform: scale(1.1);
+            }
+
+        .navbar-transparent {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: #fff !important;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-accent);
+        }
+
+        .nav-link {
+            color: #fff !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                color: var(--neon-accent) !important;
+                text-shadow: 0 0 8px var(--neon-accent);
+            }
+
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: -5px;
+                left: 0;
+                background-color: var(--neon-accent);
+                transition: width 0.3s ease;
+                box-shadow: 0 0 10px var(--neon-accent);
+            }
+
+            .nav-link:hover::after {
+                width: 100%;
+            }
+
+        .hero-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-top: 50px;
+            padding-bottom: 100px;
+        }
+
+        .hero-title {
+            font-weight: 800;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-size: 3rem;
+            text-shadow: 0 0 20px var(--neon-accent);
+            margin: 0;
+        }
+
+        .hero-subtitle {
+            color: var(--neon-secondary);
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            text-shadow: 0 0 15px var(--neon-secondary);
+        }
+
+        /* Якщо ми на головній - контент наїжджає на шапку */
+        .overlap-main {
+            margin-top: -50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Якщо ми на інших сторінках - стандартний відступ */
+        main:not(.overlap-main) {
+            padding-top: 2rem;
+        }
+
+        footer {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(5px);
+            border-top: 1px solid var(--glass-border);
+            padding: 20px 0;
+            color: #666;
+            margin-top: auto;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--neon-accent);
+                box-shadow: 0 0 10px var(--neon-accent);
+            }
+    </style>
+</head>
+<body>
+    <header class="header-glass @(isHomePage ? "header-hero" : "")">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-transparent">
+            <div class="container" style="position: relative; z-index: 1;">
+                <a class="navbar-brand" asp-area="" asp-controller="Questrooms" asp-action="Index">
+                    <i class="bi bi-controller me-2"></i>Quest<span style="color: var(--neon-accent);">Booking</span>
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" style="filter: invert(1);">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link @(currentController == "Questrooms" ? "active" : "")" asp-controller="Questrooms" asp-action="Index">Квести</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Promocodes" ? "active" : "")" asp-controller="Promocodes" asp-action="Index">Промокоди</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Timeslots" ? "active" : "")" asp-controller="Timeslots" asp-action="Index">Розклад</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Bookings" ? "active" : "")" asp-controller="Bookings" asp-action="Index" style="color: var(--neon-secondary) !important;">Замовлення</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        @if (isHomePage)
+        {
+            <div class="container hero-section">
+                <h1 class="hero-title">Найкращі квести Києва</h1>
+                <div class="hero-subtitle">Виклик, який ти не забудеш</div>
+            </div>
+        }
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-5 @(isHomePage ? "overlap-main" : "")">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-center">
+        <div class="container">
+            <span style="color: var(--neon-accent);">&copy; 2026</span> - QuestBooking - The Ultimate Experience
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/uk.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

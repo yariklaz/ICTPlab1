@@ -1,0 +1,50 @@
+﻿@model QuestBooking.Domain.Model.Promocode
+
+@{
+    ViewData["Title"] = "Створити промокод";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0" style="border-radius: 20px;">
+                <div class="card-header bg-primary text-white py-3" style="border-radius: 20px 20px 0 0;">
+                    <h4 class="mb-0 fw-bold">Новий промокод</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label class="fw-bold mb-1">Код (напр. SUMMER2026)</label>
+                            <input asp-for="Code" class="form-control" placeholder="Введіть текст промокоду" required />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="fw-bold mb-1">Знижка (%)</label>
+                            <input asp-for="DiscountPercent" class="form-control" type="number" min="1" max="100" required />
+                            <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-1">Діє з</label>
+                                <input asp-for="ValidFrom" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-1">Діє до</label>
+                                <input asp-for="ValidTo" class="form-control" type="date" value="@DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")" required />
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">Зберегти промокод</button>
+                            <a asp-action="Index" class="btn btn-link text-secondary">Назад до списку</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

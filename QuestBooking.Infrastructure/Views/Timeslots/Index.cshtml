@@ -1,0 +1,253 @@
+﻿@model IEnumerable<QuestBooking.Domain.Model.Timeslot>
+@{
+    ViewData["Title"] = "Розклад за кімнатами";
+    var rooms = ViewBag.Rooms as List<QuestBooking.Domain.Model.Questroom>;
+}
+
+<style>
+    /* === ТЕМНЕ СКЛО ДЛЯ ТАБІВ === */
+    .nav-pills {
+        background: rgba(20, 20, 30, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+        .nav-pills .nav-link {
+            border-radius: 10px;
+            color: #a0a0a0;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            background: transparent;
+        }
+
+            .nav-pills .nav-link.active {
+                background-color: rgba(0, 243, 255, 0.1);
+                color: var(--neon-accent, #00f3ff);
+                border-color: var(--neon-accent, #00f3ff);
+                box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            }
+
+            .nav-pills .nav-link:not(.active):hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+    /* === ТЕМНЕ СКЛО ДЛЯ КАРТОК РОЗКЛАДУ === */
+    .day-card {
+        background: rgba(20, 20, 30, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .day-card-header {
+        background: rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* === ТАБЛИЦЯ ТА РЯДКИ === */
+    .table {
+        color: #e0e0e0;
+    }
+
+        .table thead th {
+            background-color: transparent;
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: none;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background-color 0.2s;
+        }
+
+            .table tbody tr:hover {
+                background-color: rgba(255, 255, 255, 0.02);
+            }
+
+        .table tbody td {
+            border: none;
+        }
+
+    /* === СТАТУСИ (Вільний / Заброньовано) === */
+    .badge-free {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.4);
+        color: #00ff88;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+    }
+
+    .badge-booked {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        color: #666;
+    }
+
+    /* === КНОПКИ ТА ФОРМИ === */
+    .glass-select {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+        .glass-select:focus {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: var(--neon-accent, #00f3ff);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+    .btn-neon-danger {
+        border: 1px solid #ff4757;
+        color: #ff4757;
+        background: rgba(255, 71, 87, 0.1);
+    }
+
+        .btn-neon-danger:hover {
+            background: #ff4757;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+        }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-0 text-white" style="text-shadow: 0 0 10px rgba(255,255,255,0.2);">Менеджер розкладу</h2>
+            <p class="small mb-0" style="color: #a0a0a0;">Керуйте годинами для кожної кімнати окремо</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <form asp-action="ClearAvailable" method="post" class="d-flex gap-2 align-items-center" onsubmit="return confirm('Видалити всі ВІЛЬНІ слоти?');">
+                <select name="roomId" class="form-select form-select-sm glass-select" style="width: 150px;" asp-items="ViewBag.RoomId">
+                    <option value="" style="color: black;">Всі кімнати</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-neon-danger px-3">
+                    <i class="bi bi-trash3 me-1"></i> Очистити вільні
+                </button>
+            </form>
+
+            <a asp-action="Generate" class="btn shadow-sm px-4 fw-bold" style="background: var(--neon-accent, #00f3ff); color: #000;">
+                <i class="bi bi-magic me-1"></i> Швидка генерація
+            </a>
+        </div>
+    </div>
+
+    @if (rooms == null || !rooms.Any())
+    {
+        <div class="alert" style="background: rgba(255, 165, 2, 0.1); border: 1px solid #ffa502; color: #ffa502;">
+            Спершу створіть хоча б одну квест-кімнату.
+        </div>
+    }
+    else
+    {
+        <ul class="nav nav-pills mb-4 p-2" id="roomTabs" role="tablist">
+            @for (int i = 0; i < rooms.Count; i++)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(i == 0 ? "active" : "") me-2 px-4"
+                            id="tab-@rooms[i].Id"
+                            data-bs-toggle="pill"
+                            data-bs-target="#room-panel-@rooms[i].Id"
+                            type="button" role="tab">
+                        @rooms[i].Title
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <div class="tab-content" id="roomTabsContent">
+            @for (int i = 0; i < rooms.Count; i++)
+            {
+                var currentRoomId = rooms[i].Id;
+                var roomSlots = Model.Where(s => s.RoomId == currentRoomId).OrderBy(s => s.StartTime).ToList();
+
+                <div class="tab-pane fade @(i == 0 ? "show active" : "")" id="room-panel-@currentRoomId" role="tabpanel">
+
+                    @if (!roomSlots.Any())
+                    {
+                        <div class="text-center py-5 rounded" style="background: rgba(20,20,30,0.6); border: 1px dashed rgba(255,255,255,0.1);">
+                            <i class="bi bi-calendar-x display-4 opacity-25" style="color: #fff;"></i>
+                            <p class="mt-3" style="color: #888;">Для цієї кімнати ще немає розкладу.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var dateGroup in roomSlots.GroupBy(s => s.StartTime.Date))
+                        {
+                            <div class="card day-card">
+                                <div class="day-card-header pt-3 pb-3 px-4">
+                                    <h5 class="fw-bold mb-0" style="color: var(--neon-accent, #00f3ff); text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);">
+                                        <i class="bi bi-calendar-check me-2"></i>
+                                        @dateGroup.Key.ToString("dd MMMM yyyy")
+                                    </h5>
+                                </div>
+                                <div class="card-body px-0 py-0">
+                                    <table class="table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-4 pt-3 pb-3">Час</th>
+                                                <th class="pt-3 pb-3">Статус</th>
+                                                <th class="text-end pe-4 pt-3 pb-3">Дії</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var slot in dateGroup)
+                                            {
+                                                <tr>
+                                                    <td class="ps-4 py-3">
+                                                        <span class="fw-bold fs-5 text-white">@slot.StartTime.ToString("HH:mm")</span>
+                                                    </td>
+                                                    <td>
+                                                        @if (slot.IsAvailable == true)
+                                                        {
+                                                            <span class="badge badge-free rounded-pill px-3 py-2">
+                                                                <i class="bi bi-check-circle-fill me-1"></i> Вільний
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-booked rounded-pill px-3 py-2">
+                                                                <i class="bi bi-lock-fill me-1"></i> Заброньовано
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-end pe-4">
+                                                        @if (slot.IsAvailable == true)
+                                                        {
+                                                            <form asp-action="Delete" asp-route-id="@slot.Id" method="post" class="d-inline" onsubmit="return confirm('Видалити цей слот?');">
+                                                                <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0" style="color: #ff4757;">
+                                                                    <i class="bi bi-trash"></i> Видалити
+                                                                </button>
+                                                            </form>
+                                                        }
+                                                        else
+                                                        {
+                                                            <small style="color: #555;">Неможливо видалити</small>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

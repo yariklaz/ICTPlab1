@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Швидка генерація розкладу";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white py-3">
+                    <h3 class="mb-0 fs-4">Швидка генерація розкладу</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Generate" method="post">
+
+                        <div class="form-group mb-4">
+                            <label class="fw-bold mb-1">Оберіть квест-кімнату</label>
+                            <select name="roomId" class="form-control form-select" asp-items="ViewBag.RoomId" required>
+                                <option value="">-- Оберіть кімнату --</option>
+                            </select>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 form-group">
+                                <label class="fw-bold mb-1">Початок періоду</label>
+                                <input type="date" name="startDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            </div>
+                            <div class="col-md-6 form-group mt-3 mt-md-0">
+                                <label class="fw-bold mb-1">Кінець періоду</label>
+                                <input type="date" name="endDate" class="form-control" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-dd")" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 form-group">
+                                <label class="fw-bold mb-1">Початок робочого дня</label>
+                                <input type="time" name="startTime" class="form-control" value="10:00" required />
+                            </div>
+                            <div class="col-md-6 form-group mt-3 mt-md-0">
+                                <label class="fw-bold mb-1">Кінець робочого дня</label>
+                                <input type="time" name="endTime" class="form-control" value="22:00" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-5">
+                            <label class="fw-bold mb-1">Інтервал між іграми (хв)</label>
+                            <input type="number" name="intervalMinutes" class="form-control" value="90" min="30" required />
+                            <small class="text-muted d-block mt-1">Наприклад: 60 хв гра + 30 хв на прибирання = 90 хв.</small>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                                Згенерувати слоти на весь період
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <a asp-action="Index" class="text-secondary text-decoration-none fw-bold">← Повернутися до розкладу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

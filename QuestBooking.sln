@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuestBooking.Domain", "QuestBooking.Domain\QuestBooking.Domain.csproj", "{1D91D29B-A3CD-47E0-8DBC-8C3AAA3A5733}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuestBooking.Infrastructure", "QuestBooking.Infrastructure\QuestBooking.Infrastructure.csproj", "{00785C25-D27C-40B0-BCE0-D0B662C28BF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D91D29B-A3CD-47E0-8DBC-8C3AAA3A5733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D91D29B-A3CD-47E0-8DBC-8C3AAA3A5733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D91D29B-A3CD-47E0-8DBC-8C3AAA3A5733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D91D29B-A3CD-47E0-8DBC-8C3AAA3A5733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00785C25-D27C-40B0-BCE0-D0B662C28BF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00785C25-D27C-40B0-BCE0-D0B662C28BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00785C25-D27C-40B0-BCE0-D0B662C28BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00785C25-D27C-40B0-BCE0-D0B662C28BF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {040113D1-9EF7-4645-A866-BD5FA5E5ACB6}
+	EndGlobalSection
+EndGlobal
