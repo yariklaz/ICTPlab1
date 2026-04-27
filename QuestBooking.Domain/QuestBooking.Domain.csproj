@@ -47,7 +47,6 @@
     <Reference Include="Microsoft.Analytics.Types" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Model\Booking.cs" />
     <Compile Include="Model\Enity.cs" />
     <Compile Include="Model\Client.cs" />

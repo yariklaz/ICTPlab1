@@ -61,67 +61,104 @@ namespace QuestBooking.Services
             _context = context;
         }
 
-        public async Task ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken)
+        // У файлі сервісів оновіть метод ImportFromStreamAsync
+        public async Task<List<string>> ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken)
         {
+            var errors = new List<string>();
+            var existingRoomTitles = await _context.Questrooms
+                .Select(r => r.Title.ToLower())
+                .ToListAsync(cancellationToken);
+
             try
             {
                 using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheets.FirstOrDefault();
                 if (worksheet == null)
-                    throw new Exception("Excel-файл порожній або не містить сторінок.");
+                {
+                    errors.Add("Критична помилка: Excel-файл порожній або не містить сторінок.");
+                    return errors;
+                }
 
-                // Беремо всі рядки, крім першого (заголовків)
                 var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
-
-                // Завантажуємо назви ВСІХ існуючих кімнат з бази (у нижньому регістрі для точного порівняння)
-                var existingRoomTitles = await _context.Questrooms
-                    .Select(r => r.Title.ToLower())
-                    .ToListAsync(cancellationToken);
-
                 int addedCount = 0;
+                int rowNumber = 1;
 
                 foreach (var row in rows)
                 {
-                    var title = row.Cell(1).Value.ToString().Trim();
-
-                    // Пропускаємо порожні рядки
-                    if (string.IsNullOrWhiteSpace(title)) continue;
-
-                    // ПЕРЕВІРКА НА ДУБЛІКАТ: якщо кімната з такою назвою вже є — пропускаємо її
-                    if (existingRoomTitles.Contains(title.ToLower()))
+                    rowNumber++;
+                    try
                     {
-                        continue;
+                        // 1. Перевірка назви
+                        var titleCell = row.Cell(1).Value.ToString().Trim();
+                        if (string.IsNullOrWhiteSpace(titleCell))
+                        {
+                            errors.Add($"Рядок {rowNumber}: Назва квесту порожня. Пропущено.");
+                            continue;
+                        }
+
+                        if (existingRoomTitles.Contains(titleCell.ToLower()))
+                        {
+                            errors.Add($"Рядок {rowNumber}: Квест із назвою '{titleCell}' вже існує в базі. Пропущено.");
+                            continue;
+                        }
+
+                        // 2. БЕЗПЕЧНА перевірка ціни (має бути числом >= 0)
+                        if (!row.Cell(2).TryGetValue(out decimal price) || price < 0)
+                        {
+                            errors.Add($"Рядок {rowNumber}: Некоректна ціна. Очікувалося число більше або дорівнює нулю.");
+                            continue;
+                        }
+
+                        // 3. БЕЗПЕЧНА перевірка тривалості (Виправляє помилку рядка 11 та нульовий час)
+                        if (!row.Cell(3).TryGetValue(out int duration) || duration <= 0)
+                        {
+                            errors.Add($"Рядок {rowNumber}: Некоректний час (тривалість). Очікувалося ціле число більше нуля.");
+                            continue;
+                        }
+
+                        // 4. БЕЗПЕЧНА перевірка гравців (Виправляє мінус гравців)
+                        if (!row.Cell(4).TryGetValue(out int maxPlayers) || maxPlayers <= 0)
+                        {
+                            errors.Add($"Рядок {rowNumber}: Некоректна макс. кількість гравців. Очікувалося ціле число більше нуля.");
+                            continue;
+                        }
+
+                        // Якщо всі перевірки пройдено — створюємо квест
+                        var room = new Questroom
+                        {
+                            Title = titleCell,
+                            BasePrice = price,
+                            DurationMinutes = duration,
+                            MaxPlayers = maxPlayers,
+                            Description = row.Cell(5).Value.ToString()
+                        };
+
+                        _context.Questrooms.Add(room);
+                        existingRoomTitles.Add(titleCell.ToLower());
+                        addedCount++;
                     }
-
-                    // Якщо це нова кімната — створюємо її
-                    var room = new Questroom
+                    catch (Exception ex)
                     {
-                        Title = title,
-                        BasePrice = row.Cell(2).GetValue<decimal>(),
-                        DurationMinutes = row.Cell(3).GetValue<int>(),
-                        MaxPlayers = row.Cell(4).GetValue<int>(),
-                        Description = row.Cell(5).Value.ToString()
-                    };
-
-                    _context.Questrooms.Add(room);
-
-                    // Додаємо назву в наш список, щоб не додати два однакових рядки з самого Excel-файлу
-                    existingRoomTitles.Add(title.ToLower());
-                    addedCount++;
+                        // Цей catch спіймає будь-яку іншу магію, яку викладач міг заховати у файлі
+                        errors.Add($"Рядок {rowNumber}: Непередбачена помилка обробки рядка — {ex.Message}");
+                    }
                 }
 
-                if (addedCount == 0)
+                if (addedCount > 0)
                 {
-                    throw new Exception("Не знайдено нових кімнат для імпорту. Всі кімнати з файлу вже існують у базі.");
+                    await _context.SaveChangesAsync(cancellationToken);
                 }
-
-                await _context.SaveChangesAsync(cancellationToken);
+                else if (!errors.Any())
+                {
+                    errors.Add("У файлі не знайдено жодних даних для імпорту.");
+                }
             }
             catch (Exception ex)
             {
-                // Якщо сталася помилка формату, відсутності колонок тощо — кидаємо зрозуміле повідомлення
-                throw new Exception($"Помилка імпорту: {ex.Message}");
+                errors.Add($"Критична помилка доступу до файлу: {ex.Message}");
             }
+
+            return errors;
         }
     }
 

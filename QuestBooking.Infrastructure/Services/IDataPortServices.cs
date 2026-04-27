@@ -6,7 +6,7 @@ namespace QuestBooking.Services
 {
     public interface IImportService<TEntity> where TEntity : class
     {
-        Task ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken);
+        Task<List<string>> ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken);
     }
 
     public interface IExportService<TEntity> where TEntity : class

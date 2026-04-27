@@ -120,6 +120,12 @@
             color: #fff;
             box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
         }
+
+    .glass-select option {
+        background-color: #1a1a2e; /* Суцільний темний фон (під колір карток) */
+        color: #ffffff; /* Білий текст для контрасту */
+        font-weight: 500;
+    }
 </style>
 
 <div class="container mt-4 mb-5">
@@ -153,20 +159,17 @@
     }
     else
     {
-        <ul class="nav nav-pills mb-4 p-2" id="roomTabs" role="tablist">
-            @for (int i = 0; i < rooms.Count; i++)
-            {
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link @(i == 0 ? "active" : "") me-2 px-4"
-                            id="tab-@rooms[i].Id"
-                            data-bs-toggle="pill"
-                            data-bs-target="#room-panel-@rooms[i].Id"
-                            type="button" role="tab">
+        <div class="mb-4 p-3" style="background: rgba(20, 20, 30, 0.6); backdrop-filter: blur(15px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <label for="roomScheduleSelect" class="form-label text-white fw-bold mb-2">Оберіть кімнату для перегляду розкладу:</label>
+            <select id="roomScheduleSelect" class="form-select glass-select form-select-lg" onchange="switchRoomPanel(this.value)">
+                @for (int i = 0; i < rooms.Count; i++)
+                {
+                    <option value="@rooms[i].Id" selected="@(i == 0 ? "selected" : null)">
                         @rooms[i].Title
-                    </button>
-                </li>
-            }
-        </ul>
+                    </option>
+                }
+            </select>
+        </div>
 
         <div class="tab-content" id="roomTabsContent">
             @for (int i = 0; i < rooms.Count; i++)
@@ -251,3 +254,21 @@
         </div>
     }
 </div>
+
+<script>
+    function switchRoomPanel(roomId) {
+        // 1. Знаходимо всі панелі з розкладом
+        var allPanels = document.querySelectorAll('.tab-pane');
+
+        // 2. Приховуємо їх усі
+        allPanels.forEach(function(panel) {
+            panel.classList.remove('show', 'active');
+        });
+
+        // 3. Знаходимо ту панель, ID якої збігається з обраною кімнатою, і показуємо її
+        var targetPanel = document.getElementById('room-panel-' + roomId);
+        if (targetPanel) {
+            targetPanel.classList.add('show', 'active');
+        }
+    }
+</script>

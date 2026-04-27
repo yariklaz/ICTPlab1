@@ -30,31 +30,44 @@ namespace QuestBooking.Infrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
         {
-            // Перевірка, чи користувач взагалі обрав файл
             if (fileExcel == null || fileExcel.Length == 0)
             {
-                TempData["ErrorMessage"] = "Будь ласка, оберіть Excel-файл для завантаження.";
+                TempData["ErrorMessage"] = "Будь ласка, оберіть Excel-файл.";
                 return RedirectToAction(nameof(Index));
             }
 
             try
             {
                 using var stream = fileExcel.OpenReadStream();
+                var importService = _dataPortFactory.GetImportService("xlsx");
 
-                // === ВИПРАВЛЕНО: Використовуємо правильну назву змінної _dataPortFactory ===
-                var _importService = _dataPortFactory.GetImportService("xlsx");
-                await _importService.ImportFromStreamAsync(stream, cancellationToken);
+                // Отримуємо список помилок від сервісу
+                List<string> importErrors = await importService.ImportFromStreamAsync(stream, cancellationToken);
 
-                // Якщо все пройшло чудово
-                TempData["SuccessMessage"] = "Імпорт успішно завершено! Нові кімнати додано до бази.";
+                if (importErrors.Any())
+                {
+                    // Формуємо вміст текстового файлу
+                    string logContent = $"Звіт про імпорт квестів від {DateTime.Now}\n";
+                    logContent += "--------------------------------------------------\n";
+                    logContent += string.Join("\n", importErrors);
+
+                    byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(logContent);
+                    string fileName = $"Import_Log_{DateTime.Now:yyyyMMdd_HHmm}.txt";
+
+                    // Повідомляємо користувача, що були проблеми
+                    TempData["ErrorMessage"] = "Імпорт завершено з попередженнями. Лог помилок завантажено.";
+
+                    // Повертаємо файл логу
+                    return File(fileBytes, "text/plain", fileName);
+                }
+
+                TempData["SuccessMessage"] = "Імпорт успішно завершено без помилок!";
             }
             catch (Exception ex)
             {
-                // Перехоплюємо будь-яку помилку (неправильний формат, дублікати тощо)
-                TempData["ErrorMessage"] = ex.Message;
+                TempData["ErrorMessage"] = $"Критична помилка: {ex.Message}";
             }
 
-            // Повертаємося на сторінку зі списком кімнат
             return RedirectToAction(nameof(Index));
         }
 
