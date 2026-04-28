@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuestBooking.Domain.Model;
 using QuestBooking.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuestBooking.Infrastructure.Controllers
 {
@@ -56,6 +57,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Timeslots/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["RoomId"] = new SelectList(_context.Questrooms, "Id", "Title");
@@ -68,6 +70,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // POST: Timeslots/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("RoomId,StartTime,IsAvailable,Id")] Timeslot timeslot)
         {
             // Знімаємо перевірку з навігаційної властивості
@@ -84,6 +87,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Timeslots/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -105,6 +109,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("RoomId,StartTime,IsAvailable,Id")] Timeslot timeslot)
         {
             if (id != timeslot.Id)
@@ -137,6 +142,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Timeslots/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -156,6 +162,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Timeslots/Generate
+        [Authorize(Roles = "Admin")]
         public IActionResult Generate()
         {
             // Передаємо список кімнат для випадаючого списку
@@ -167,6 +174,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // POST: Timeslots/Generate
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Generate(int roomId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime, int intervalMinutes)
         {
             // Захист від помилок: якщо випадково кінець вибрали раніше початку
@@ -210,6 +218,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // POST: Timeslots/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var timeslot = await _context.Timeslots.FindAsync(id);
@@ -230,6 +239,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // POST: Timeslots/ClearAvailable
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ClearAvailable(int? roomId)
         {
             // Починаємо з вибору всіх вільних слотів

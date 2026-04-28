@@ -211,9 +211,36 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link @(currentController == "Questrooms" ? "active" : "")" asp-controller="Questrooms" asp-action="Index">Квести</a></li>
-                        <li class="nav-item"><a class="nav-link @(currentController == "Promocodes" ? "active" : "")" asp-controller="Promocodes" asp-action="Index">Промокоди</a></li>
                         <li class="nav-item"><a class="nav-link @(currentController == "Timeslots" ? "active" : "")" asp-controller="Timeslots" asp-action="Index">Розклад</a></li>
-                        <li class="nav-item"><a class="nav-link @(currentController == "Bookings" ? "active" : "")" asp-controller="Bookings" asp-action="Index" style="color: var(--neon-secondary) !important;">Замовлення</a></li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link @(currentController == "Promocodes" ? "active" : "")" asp-controller="Promocodes" asp-action="Index">Промокоди</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Bookings" ? "active" : "")" asp-controller="Bookings" asp-action="Index" style="color: var(--neon-secondary) !important;">Замовлення</a></li>
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="nav-link text-white me-3">
+                                    <i class="bi bi-person-circle me-1"></i> @User.Identity.Name
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Вихід</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">Вхід</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-sm btn-info ms-lg-2" asp-controller="Account" asp-action="Register">Реєстрація</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

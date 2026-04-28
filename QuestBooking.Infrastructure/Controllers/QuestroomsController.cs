@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestBooking.Domain.Model;
 using QuestBooking.Infrastructure;
 using QuestBooking.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuestBooking.Infrastructure.Controllers
 {
@@ -25,6 +26,8 @@ namespace QuestBooking.Infrastructure.Controllers
 
         [HttpGet]
         public IActionResult Import() => View();
+
+        [Authorize(Roles = "Admin")]
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -72,6 +75,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Export(CancellationToken cancellationToken)
         {
             var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -117,6 +121,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Questrooms/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -127,6 +132,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Title,Description,MaxPlayers,BasePrice,DurationMinutes,Id")] Questroom questroom)
         {
             if (ModelState.IsValid)
@@ -139,6 +145,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Questrooms/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -159,6 +166,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Title,Description,MaxPlayers,BasePrice,DurationMinutes,Id")] Questroom questroom)
         {
             if (id != questroom.Id)
@@ -190,6 +198,7 @@ namespace QuestBooking.Infrastructure.Controllers
         }
 
         // GET: Questrooms/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -210,6 +219,7 @@ namespace QuestBooking.Infrastructure.Controllers
         // POST: Questrooms/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var questroom = await _context.Questrooms.FindAsync(id);

@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Вхід";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-4">
+        <div class="day-card p-4">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-white">Вхід</h2>
+                <p style="color: #a0a0a0;">Вітаємо знову!</p>
+            </div>
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label text-white-50">Email</label>
+                    <input name="email" class="form-control glass-select" required />
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="form-label text-white-50">Пароль</label>
+                    <input name="password" type="password" class="form-control glass-select" required />
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold py-2" style="background: #00f3ff; color: #000;">
+                    Увійти
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-action="Register" style="color: #a0a0a0; text-decoration: none;" class="small">Ще не зареєстровані?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

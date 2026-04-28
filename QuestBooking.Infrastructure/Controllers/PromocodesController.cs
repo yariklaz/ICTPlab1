@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuestBooking.Domain.Model;
 using QuestBooking.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuestBooking.Infrastructure.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class PromocodesController : Controller
     {
         private readonly QuestBookingIcptContext _context;

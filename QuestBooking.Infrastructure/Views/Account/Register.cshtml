@@ -1,0 +1,52 @@
+﻿@model QuestBooking.Domain.Model.AppUser
+
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5">
+        <div class="day-card p-4">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-white">Реєстрація</h2>
+                <p style="color: #a0a0a0;">Приєднуйтесь до нашої системи бронювання</p>
+            </div>
+
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="FullName" class="form-label text-white-50">Повне ім'я</label>
+                    <input asp-for="FullName" class="form-control glass-select" placeholder="Ярослав Лазирко" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="form-label text-white-50">Email</label>
+                    <input asp-for="Email" class="form-control glass-select" placeholder="example@mail.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Phone" class="form-label text-white-50">Телефон</label>
+                    <input asp-for="Phone" class="form-control glass-select" placeholder="+380..." />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Password" class="form-label text-white-50">Пароль</label>
+                    <input asp-for="Password" type="password" class="form-control glass-select" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold py-2" style="background: #00f3ff; color: #000;">
+                    Створити акаунт
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-action="Login" style="color: #a0a0a0; text-decoration: none;" class="small">Вже маєте акаунт? Увійти</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

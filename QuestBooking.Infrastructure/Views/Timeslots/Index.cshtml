@@ -134,21 +134,23 @@
             <h2 class="fw-bold mb-0 text-white" style="text-shadow: 0 0 10px rgba(255,255,255,0.2);">Менеджер розкладу</h2>
             <p class="small mb-0" style="color: #a0a0a0;">Керуйте годинами для кожної кімнати окремо</p>
         </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="d-flex gap-2">
+                <form asp-action="ClearAvailable" method="post" class="d-flex gap-2 align-items-center" onsubmit="return confirm('Видалити всі ВІЛЬНІ слоти?');">
+                    <select name="roomId" class="form-select form-select-sm glass-select" style="width: 150px;" asp-items="ViewBag.RoomId">
+                        <option value="" style="color: black;">Всі кімнати</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-neon-danger px-3">
+                        <i class="bi bi-trash3 me-1"></i> Очистити вільні
+                    </button>
+                </form>
 
-        <div class="d-flex gap-2">
-            <form asp-action="ClearAvailable" method="post" class="d-flex gap-2 align-items-center" onsubmit="return confirm('Видалити всі ВІЛЬНІ слоти?');">
-                <select name="roomId" class="form-select form-select-sm glass-select" style="width: 150px;" asp-items="ViewBag.RoomId">
-                    <option value="" style="color: black;">Всі кімнати</option>
-                </select>
-                <button type="submit" class="btn btn-sm btn-neon-danger px-3">
-                    <i class="bi bi-trash3 me-1"></i> Очистити вільні
-                </button>
-            </form>
-
-            <a asp-action="Generate" class="btn shadow-sm px-4 fw-bold" style="background: var(--neon-accent, #00f3ff); color: #000;">
-                <i class="bi bi-magic me-1"></i> Швидка генерація
-            </a>
-        </div>
+                <a asp-action="Generate" class="btn shadow-sm px-4 fw-bold" style="background: var(--neon-accent, #00f3ff); color: #000;">
+                    <i class="bi bi-magic me-1"></i> Швидка генерація
+                </a>
+            </div>
+        }
     </div>
 
     @if (rooms == null || !rooms.Any())
@@ -228,17 +230,20 @@
                                                         }
                                                     </td>
                                                     <td class="text-end pe-4">
-                                                        @if (slot.IsAvailable == true)
+                                                        @if (User.IsInRole("Admin"))
                                                         {
-                                                            <form asp-action="Delete" asp-route-id="@slot.Id" method="post" class="d-inline" onsubmit="return confirm('Видалити цей слот?');">
-                                                                <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0" style="color: #ff4757;">
-                                                                    <i class="bi bi-trash"></i> Видалити
-                                                                </button>
-                                                            </form>
-                                                        }
-                                                        else
-                                                        {
-                                                            <small style="color: #555;">Неможливо видалити</small>
+                                                            @if (slot.IsAvailable == true)
+                                                            {
+                                                                <form asp-action="Delete" asp-route-id="@slot.Id" method="post" class="d-inline" onsubmit="return confirm('Видалити цей слот?');">
+                                                                    <button type="submit" class="btn btn-sm btn-link text-decoration-none p-0" style="color: #ff4757;">
+                                                                        <i class="bi bi-trash"></i> Видалити
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                            else
+                                                            {
+                                                                <small style="color: #555;">Неможливо видалити</small>
+                                                            }
                                                         }
                                                     </td>
                                                 </tr>

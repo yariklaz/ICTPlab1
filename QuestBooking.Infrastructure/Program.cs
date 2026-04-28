@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies; // <--- ДОДАНО: Бібліотека для Cookie-авторизації
 using QuestBooking.Domain.Model;
 using QuestBooking.Infrastructure;
 using QuestBooking.Services;
@@ -11,9 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
+// === 1.5 ДОДАВАННЯ АУТЕНТИФІКАЦІЇ (Етап 1.7) === <--- ДОДАНО: Налаштування нашого "печива"
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+        options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/AccessDenied");
+    });
+
+
 // === 2. ПІДКЛЮЧЕННЯ БАЗИ ДАНИХ (PostgreSQL) ===
-// УВАГА: Перевір, чи твоя стрічка підключення в appsettings.json називається "DefaultConnection". 
-// Якщо інакше (наприклад, "QuestBookingDb"), просто зміни назву тут.
 builder.Services.AddDbContext<QuestBookingIcptContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -53,10 +61,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// === 5. ЗАСТОСУВАННЯ ЛОКАЛІЗАЦІЇ (Обов'язково перед Authorization) ===
+// === 5. ЗАСТОСУВАННЯ ЛОКАЛІЗАЦІЇ ===
 app.UseRequestLocalization(localizationOptions);
 
-app.UseAuthorization();
+
+// === 6. АУТЕНТИФІКАЦІЯ ТА АВТОРИЗАЦІЯ === <--- ДОДАНО: UseAuthentication
+app.UseAuthentication(); // Спочатку перевіряємо: Хто ти такий? (Логін/Пароль)
+app.UseAuthorization();  // Потім перевіряємо: Що тобі можна робити? (Ролі: Admin/Client)
+
 
 app.MapControllerRoute(
     name: "default",
